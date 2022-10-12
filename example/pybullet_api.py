@@ -51,7 +51,7 @@ class PyBullet:
 
 class DynamicBox:
 
-    def __init__(self, base_position, half_extents, base_mass=0.5):
+    def __init__(self, base_position, half_extents, base_orientation=[0, 0, 0, 1], base_mass=0.5):
         colid = p.createCollisionShape(
             p.GEOM_BOX,
             halfExtents=half_extents
@@ -61,9 +61,14 @@ class DynamicBox:
             rgbaColor=[0, 1, 0, 1.],
             halfExtents=half_extents
         )
+
+        if len(base_orientation) == 3:
+            base_orientation = p.getQuaternionFromEuler(base_orientation)
+
         self._id = p.createMultiBody(
             baseMass=base_mass,
             basePosition=base_position,
+            baseOrientation=base_orientation,
             baseCollisionShapeIndex=colid,
             baseVisualShapeIndex=visid
         )
@@ -93,6 +98,10 @@ class VisualBox:
             rgbaColor=rgba_color,
             halfExtents=half_extents
         )
+
+        if len(base_orientation) == 3:
+            base_orientation = p.getQuaternionFromEuler(base_orientation)
+
         self._id = p.createMultiBody(
             baseMass=0.,
             basePosition=base_position,
@@ -101,6 +110,10 @@ class VisualBox:
         )
 
     def reset(self, base_position, base_orientation=[0, 0, 0, 1]):
+
+        if len(base_orientation) == 3:
+            base_orientation = p.getQuaternionFromEuler(base_orientation)
+
         p.resetBasePositionAndOrientation(
             self._id,
             base_position,
