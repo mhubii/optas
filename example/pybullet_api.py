@@ -164,7 +164,7 @@ class Kuka:
         cwd = pathlib.Path(__file__).parent.resolve() # path to current working directory
         urdf_filename = os.path.join(cwd, 'robots', 'kuka_lwr.urdf')
         self.kuka = optas.RobotModel(urdf_filename, time_derivs=[0])
-
+        self.eff_pos = self.kuka.get_global_link_position_function('end_effector_ball')
 
     def reset(self, q):
         for j, idx in enumerate(self._actuated_joints):
