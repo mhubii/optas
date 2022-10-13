@@ -182,6 +182,12 @@ class Kuka:
     def q(self):
         return [state[0] for state in p.getJointStates(self._id, self._actuated_joints)]
 
+    def dq(self):
+        return [state[1] for state in p.getJointStates(self._id, self._actuated_joints)]
+
+    def t(self):
+        return [state[3] for state in p.getJointStates(self._id, self._actuated_joints)]
+
 
 def main():
 
