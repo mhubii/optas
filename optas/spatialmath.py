@@ -341,11 +341,6 @@ def tr2jac(T, samebody=False):
         )
 
 @arrayify_args
-def tr2rpy(T):
-    """Convert SO(3) or SE(3) matrix to roll-pitch-yaw angles"""
-    raise NotImplementedError()
-
-@arrayify_args
 def tr2rt(T):
     """Convert homogeneous transform to rotation and translation"""
     return t2r(T), transl(T)
@@ -360,10 +355,6 @@ def transl2(T):
     """SE(2) translational homogeneous transform"""
     return T[:2, 2]
 
-@vectorize_args
-def trexp(S, theta):
-    """Matrix exponential for so(3) and se(3)"""
-    raise NotImplementedError()
 
 @arrayify_args
 def trlog(R):
