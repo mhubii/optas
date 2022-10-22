@@ -355,12 +355,15 @@ def transl2(T):
     """SE(2) translational homogeneous transform"""
     return T[:2, 2]
 
-
 @arrayify_args
-def trlog(R):
+def trlog(R, rmat=False):
     """Logarithm of SO(3) or SE(3) matrix"""
     theta = cs.acos(0.5*(cs.trace(R) - 1.))
-    return theta, vex((R-R.T)/2./sin(theta))
+    w = vex((R-R.T)/2./sin(theta))
+    if rmat:
+        return skew(theta*w)
+    else:
+        return theta, w
 
 @arrayify_args
 def trotx(theta):
@@ -391,7 +394,6 @@ def vex(S):
         return 0.5*cs.vertcat(S[2,1]-S[1,2], S[0,2]-S[2,0], S[1,0]-S[0,1])
     else:
         raise ValueError(f'input must be a 2-by-2 or 3-by-3 matrix, not {S.shape[0]}-by-{S.shape[1]}')
-
 
 @arrayify_args
 def vexa(S):
