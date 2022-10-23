@@ -83,12 +83,6 @@ def delta2tr(d):
     lo = cs.DM.zeros(1, 4)
     return I4() + cs.vertcat(up, lo)
 
-@arrayify_args
-def e2h(e):
-    """Euclidean to homogeneous"""
-    ones = cs.DM.ones(1, e.shape[1])
-    return cs.vertcat(e, ones)
-
 @vectorize_args
 def eul2jac(phi, theta, psi):
     """Euler angle rate Jacobian"""
