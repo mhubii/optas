@@ -252,22 +252,6 @@ def skew(v):
     else:
         raise ValueError(f"expecting a scalar or 3-vector")
 
-@vectorize_args
-def skewa(v):
-    """Create augmented skew-symmetric matrix"""
-    if v.shape[0] == 3:
-        return cs.vertcat(
-            cs.horzcat(skew(s[2]), s[:2]),
-            cs.DM.zeros(1, 3),
-        )
-    elif v.shape[0] == 6:
-        return cs.vertcat(
-            cs.horzcat(skew(s[3:6]), s[:3]),
-            cs.DM.zeros(1, 4),
-        )
-    else:
-        raise ValueError(f"expecting a 3- or 6-vector")
-
 @arrayify_args
 def t2r(T):
     """Rotational submatrix"""
