@@ -77,24 +77,6 @@ def angvec2tr(theta, v):
     return r2t(angvec2r(theta, v))
 
 @vectorize_args
-def delta2tr(d):
-    """Convert differential motion  to SE(3) homogeneous transform"""
-    up = cs.horzcat(skew(d[3:6]), d[:3])
-    lo = cs.DM.zeros(1, 4)
-    return I4() + cs.vertcat(up, lo)
-
-@vectorize_args
-def eul2jac(phi, theta, psi):
-    """Euler angle rate Jacobian"""
-    sphi, cphi = sin(phi), cos(phi)
-    stheta, ctheta = sin(theta), cos(theta)
-    return cs.vertcat(
-        cs.horzcat(0., -sphi, cphi*stheta),
-        cs.horzcat(0.,  cphi, sphi*stheta),
-        cs.horzcat(1.,    0.,      ctheta),
-    )
-
-@vectorize_args
 def eul2r(phi, theta, psi):
     """Convert Euler angles to rotation matrix"""
     return rotz(phi) @ roty(theta) @ rotz(psi)
@@ -103,11 +85,6 @@ def eul2r(phi, theta, psi):
 def eul2tr(phi, theta, psi):
     """Convert Euler angles to homogeneous transform"""
     return r2t(eul2r(phi, theta, psi))
-
-@arrayify_args
-def h2e(h):
-    """Homogeneous to Euclidean"""
-    return h[:-1, :] / cs.repmat(h[-1, :], h.shape[0]-1, 1)
 
 @vectorize_args
 def oa2r(o, a):
@@ -169,38 +146,6 @@ def rotz(theta):
     )
 
 @vectorize_args
-def rpy2jac(rpy, opt='zyx'):
-    """Jacobian from RPY angle rates to angular velocity"""
-
-    order = ['zyx', 'xyz', 'yxz']
-    r, p, y = cs.vertsplit(rpy)
-
-    sr, cr = sin(r), cos(r)
-    sp, cp = sin(p), cos(p)
-    sy, cy = sin(y), cos(y)
-
-    if opt == 'xyz':
-        return cs.vertcat(
-            cs.horzcat(sp, 0., 1.),
-            cs.horzcat(-cp*sy, cy, 0.),
-            cs.horzcat(cp*cy, sy, 0.),
-        )
-    elif opt == 'zyx':
-        return cs.vertcat(
-            cs.horzcat(cp*cy, -sy, 0.),
-            cs.horzcat(cp*sy, cy, 0.),
-            cs.horzcat(-sp, 0., 1.),
-        )
-    elif opt == 'yxz':
-        return cs.vertcat(
-            cs.horzcat(cp*sy, cy, 0.),
-            cs.horzcat(-sp, 0., 1.),
-            cs.horzcat(cp*cy, -sy, 0.),
-        )
-    else:
-        raise ValueError(f"didn't recognize given option {opt=}, only allowed {order}")
-
-@vectorize_args
 def rpy2r(rpy, opt='zyx'):
     """Roll-pitch-yaw angles to SO(3) rotation matrix"""
 
@@ -258,20 +203,6 @@ def invt(T):
     t = transl(T)
     return rt2tr(R.T, -R.T@t)
 
-@vectorize_args
-def tr2angvec(T):
-    """Convert rotation matrix to angle-vector form"""
-    return trlog(t2r(T))
-
-@arrayify_args
-def tr2delta(T0, T1):
-    """Convert SE(3) homogeneous transform to differential motion"""
-    TD = cs.inv(T0) @ T1
-    return cs.vertcat(
-        transl(TD),
-        vex(t2r(TD) - I3()),
-    )
-
 @arrayify_args
 def tr2eul(R, flip=False):
     """Convert SO(3) or SE(3) matrix to Euler angles"""
@@ -297,21 +228,6 @@ def tr2eul(R, flip=False):
     )
 
     return cs.if_else(cond, eul_true, eul_false)
-
-@arrayify_args
-def tr2jac(T, samebody=False):
-    """Jacobian for differential motion"""
-    R = t2r(T)
-    if samebody:
-        return cs.vertcat(
-            cs.horzcat(R.T, (skew(transl(T))@R).T),
-            cs.horzcat(cs.DM.zeros(3, 3), R.T),
-        )
-    else:
-        return cs.vertcat(
-            cs.horzcat(R.T, cs.DM.zeros(3, 3)),
-            cs.horzcat(cs.DM.zeros(3, 3), R.T),
-        )
 
 @arrayify_args
 def tr2rt(T):
